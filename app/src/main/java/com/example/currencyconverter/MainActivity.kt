@@ -1,18 +1,25 @@
 package com.example.currencyconverter
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
     private val exchangeRates = mapOf(
-        "USD" to 1.0,
-        "VND" to 25355.05,
+        "USD" to 1.0,    // Base currency (USD)
+        "VND" to 23175.0,
         "GBP" to 0.77,
-        "EUR" to 0.92,
-        "JPY" to 153.00
+        "EUR" to 0.90,
+        "JPY" to 108.61
     )
+
+    private lateinit var spinnerFrom: Spinner
+    private lateinit var spinnerTo: Spinner
+    private lateinit var inputAmount: EditText
+    private lateinit var resultText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,11 +27,10 @@ class MainActivity : AppCompatActivity() {
 
         val currencies = exchangeRates.keys.toList()
 
-        val spinnerFrom: Spinner = findViewById(R.id.fromCurrencySpinner)
-        val spinnerTo: Spinner = findViewById(R.id.toCurrencySpinner)
-        val inputAmount: EditText = findViewById(R.id.amountInput)
-        val resultText: TextView = findViewById(R.id.resultText)
-        val convertButton: Button = findViewById(R.id.convertButton)
+        spinnerFrom = findViewById(R.id.fromCurrencySpinner)
+        spinnerTo = findViewById(R.id.toCurrencySpinner)
+        inputAmount = findViewById(R.id.amountInput)
+        resultText = findViewById(R.id.resultText)
 
         // Populate spinners
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, currencies)
@@ -32,17 +38,40 @@ class MainActivity : AppCompatActivity() {
         spinnerFrom.adapter = adapter
         spinnerTo.adapter = adapter
 
-        convertButton.setOnClickListener {
-            val fromCurrency = spinnerFrom.selectedItem.toString()
-            val toCurrency = spinnerTo.selectedItem.toString()
-            val amount = inputAmount.text.toString().toDoubleOrNull()
-
-            if (amount != null && exchangeRates.containsKey(fromCurrency) && exchangeRates.containsKey(toCurrency)) {
-                val result = convertCurrency(amount, fromCurrency, toCurrency)
-                resultText.text = "$result $toCurrency"
-            } else {
-                Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show()
+        // Add listeners for input changes
+        inputAmount.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                updateResult()
             }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        spinnerFrom.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+                updateResult()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        spinnerTo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+                updateResult()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+
+    private fun updateResult() {
+        val fromCurrency = spinnerFrom.selectedItem.toString()
+        val toCurrency = spinnerTo.selectedItem.toString()
+        val amount = inputAmount.text.toString().toDoubleOrNull()
+
+        if (amount != null && exchangeRates.containsKey(fromCurrency) && exchangeRates.containsKey(toCurrency)) {
+            val result = convertCurrency(amount, fromCurrency, toCurrency)
+            resultText.text = "$result $toCurrency"
+        } else {
+            resultText.text = "Result"
         }
     }
 

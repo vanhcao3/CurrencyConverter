@@ -25,14 +25,6 @@
         android:hint="Enter amount"
         android:layout_marginBottom="16dp"/>
 
-    <Button
-        android:id="@+id/convertButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Convert"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp"/>
-
     <TextView
         android:id="@+id/resultText"
         android:layout_width="match_parent"
